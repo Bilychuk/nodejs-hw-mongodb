@@ -23,7 +23,10 @@ export const createContactSchema = Joi.object({
 
 export const updateContactSchema = Joi.object({
   name: Joi.string().min(3).max(20),
-  phoneNumber: Joi.string().min(3).max(20),
+  phoneNumber: Joi.string().pattern(phoneNumberPattern).messages({
+    'string.pattern.base':
+      'Phone number must be valid (digits, spaces, dashes, parentheses, optional +).',
+  }),
   email: Joi.string()
     .min(3)
     .max(20)
