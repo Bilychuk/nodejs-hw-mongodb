@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import { isValidObjectId } from 'mongoose';
 
 const phoneNumberPattern = /^[+]?[\d\s\-()]{7,20}$/;
 
@@ -19,6 +20,12 @@ export const createContactSchema = Joi.object({
     .valid('work', 'home', 'personal')
     .required()
     .default('personal'),
+  userId: Joi.string().custom((value, helper) => {
+    if (value && !isValidObjectId(value)) {
+      return helper.message('User id should be a valid mongo id');
+    }
+    return true;
+  }),
 });
 
 export const updateContactSchema = Joi.object({
