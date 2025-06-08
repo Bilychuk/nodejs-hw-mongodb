@@ -9,6 +9,9 @@ import createHttpError from 'http-errors';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 import { parsedFilterParams } from '../utils/parseFilterParams.js';
+import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
+import { getEnvVar } from '../utils/getEnvVar.js';
+import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
 
 export const getContactsController = async (req, res, next) => {
   const { page, perPage } = parsePaginationParams(req.query);
@@ -49,6 +52,17 @@ export const getContactByIdController = async (req, res, next) => {
 export const createContactController = async (req, res, next) => {
   const { name, phoneNumber, email, isFavourite, contactType } = req.body;
 
+  const photo = req.file;
+  let photoUrl;
+
+  if (photo) {
+    if (getEnvVar('ENABLE_CLOUDINARY') === 'true') {
+      photoUrl = await saveFileToCloudinary(photo);
+    } else {
+      photoUrl = await saveFileToUploadDir(photo);
+    }
+  }
+
   if (!name || !phoneNumber || !contactType) {
     next(
       createHttpError(
@@ -63,6 +77,7 @@ export const createContactController = async (req, res, next) => {
     name,
     phoneNumber,
     contactType,
+    photo: photoUrl,
     userId: req.user._id,
   };
 
@@ -81,8 +96,18 @@ export const createContactController = async (req, res, next) => {
 
 export const patchContactController = async (req, res, next) => {
   const { contactId } = req.params;
+  const photo = req.file;
 
-  if (!req.body || Object.keys(req.body).length === 0) {
+  let photoUrl;
+  if (photo) {
+    if (getEnvVar('ENABLE_CLOUDINARY') === 'true') {
+      photoUrl = await saveFileToCloudinary(photo);
+    } else {
+      photoUrl = await saveFileToUploadDir(photo);
+    }
+  }
+
+  if (!req.body || (Object.keys(req.body).length === 0 && !req.file)) {
     next(
       createHttpError(
         400,
@@ -92,7 +117,11 @@ export const patchContactController = async (req, res, next) => {
     return;
   }
 
-  const result = await updateContact(contactId, req.body, req.user._id);
+  const result = await updateContact(
+    contactId,
+    { ...req.body, photo: photoUrl },
+    req.user._id,
+  );
 
   if (!result) {
     next(createHttpError(404, 'Contact not found'));

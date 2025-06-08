@@ -20,6 +20,7 @@ export const createContactSchema = Joi.object({
     .valid('work', 'home', 'personal')
     .required()
     .default('personal'),
+  photo: Joi.string(),
   userId: Joi.string().custom((value, helper) => {
     if (value && !isValidObjectId(value)) {
       return helper.message('User id should be a valid mongo id');
@@ -44,4 +45,5 @@ export const updateContactSchema = Joi.object({
     .max(20)
     .valid('work', 'home', 'personal')
     .default('personal'),
+  photo: Joi.string(),
 });
