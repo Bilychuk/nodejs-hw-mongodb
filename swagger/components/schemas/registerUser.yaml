@@ -1,0 +1,19 @@
+type: object
+required:
+  - name
+  - email
+  - password
+properties:
+  name:
+    description: "Contact's name"
+    type: string
+    example: 'John Doe'
+  email:
+    description: "Contact's phone number"
+    type: string
+    pattern: '^[+]?[\d\s\-()]{7,20}$'
+    example: '+380671111111'
+  password:
+    description: "Contact's email"
+    type: string
+    example: 'email@gmail.com'

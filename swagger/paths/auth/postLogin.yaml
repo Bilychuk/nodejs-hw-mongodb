@@ -1,0 +1,63 @@
+tags:
+  - Auth
+summary: Login user
+operationId: loginUser
+description: 'Authenticate user and return access token in response, refreshToken and sessionId as HTTP-only cookies.'
+security: []
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - email
+          - password
+        properties:
+          email:
+            description: "User's email"
+            type: string
+            format: email
+            example: 'email@gmail.com'
+          password:
+            description: "User's password"
+            type: string
+            format: password
+            example: '123456'
+responses:
+  '200':
+    description: Login a user
+    headers:
+      Set-Cookie:
+        description: HTTP-only cookies for refreshToken and sessionId will be set.
+        schema:
+          type: string
+          example: refreshToken=wQgb97oZjc6E2rjGYP8WZj6cFPwSjZV58tV3QVnA; sessionId=j%3A%22684bd6c9c89150805aea7579%22
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+            - data
+          properties:
+            status:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: 'Successfully logged in an user!'
+            data:
+              type: object
+              required:
+                - accessToken
+              properties:
+                accessToken:
+                  type: string
+                  description: JWT access token (expires in 15 minutes)
+                  example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+  '400':
+    $ref: '../../components/responses/400.yaml'
+  '401':
+    $ref: '../../components/responses/401.yaml'
