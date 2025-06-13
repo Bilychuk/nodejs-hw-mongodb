@@ -1,0 +1,44 @@
+tags:
+  - Auth
+summary: Refresh user session
+operationId: refreshUser
+description:
+  Read `refreshToken` and `sessionId` from HTTP-only cookies, validate session,
+  rotate tokens, set new cookies and return new access token.
+security:
+  - bearerAuth: []
+responses:
+  '200':
+    description: Successfully refreshed a session
+    headers:
+      Set-Cookie:
+        description: HTTP-only cookies for new refreshToken and sessionId
+        schema:
+          type: string
+          example: refreshToken=wQgb97oZjc6E2rjGYP8WZj6cFPwSjZV58tV3QVnA; sessionId=j%3A%22684bd6c9c89150805aea7579%22
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+            - data
+          properties:
+            status:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: 'Successfully refreshed a session!'
+            data:
+              type: object
+              required:
+                - accessToken
+              properties:
+                accessToken:
+                  type: string
+                  description: JWT access token (expires in 15 minutes)
+                  example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+  '401':
+    $ref: '../../components/responses/401.yaml'
